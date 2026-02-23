@@ -6,50 +6,55 @@ A module designed to automatically extract the crds from Helm charts and install
 > Module execution and subsequent state generation can take a longer than usual time due to the large size of the state the module generates.  
 > It is recommended to use it as standalone in its own script to separate its state from other terraform scripts.
 
+> **WARNING:** When migrating from a version before 8.0.0, make sure `apply_only = true` is set  to avoid destruction of CRDs installed by older module versions!  
+
 Usage example (overriding versions and disabling built-in default charts):
 ```hcl
-module "crds" {
-  source  = "iits-consulting/crd-installer/opentelekomcloud/"
-
-  default_chart_overrides = {
+locals {
+  crd_charts = {
     cert-manager = {
-      version = "1.16.1"
-    }
-    traefik = {
-      version = "32.1.1"
+      version = "1.17.4-policy-exclusion"
+      values = {
+        cert-manager = {
+          crds = {
+            enabled = true
+          }
+        }
+      }
     }
     kyverno = {
-      enabled = false
+      version = "3.1.1"
+      values = {
+        kyverno = {
+          crds = {
+            install = true
+          }
+        }
+      }
     }
     prometheus-stack = {
-      version = "62.6.0"
+      version = "79.8.2"
+      values = {
+        prometheusStack = {
+          crds = {
+            enabled = true
+          }
+        }
+      }
     }
   }
 }
-```
-Usage example (adding new charts for crd installation):
-```hcl
-module "crds" {
-  source  = "iits-consulting/crd-installer/opentelekomcloud/"
 
-  charts = {
-    exampleChart1 = {
-      repository = "https://charts.iits.tech"
-      version    = "0.0.1"
-      set = [{
-        name  = "exampleChart1.installCRDs"
-        value = true
-      }]
-    }
-    exampleChart2 = {
-      repository = "https://charts.iits.tech"
-      version    = "0.0.2"
-      set = [{
-        name  = "exampleChart2.crds.install"
-        value = true
-      }]
-    }
-  }
+module "crds" {
+  source  = "iits-consulting/crd-installer/kubernetes/"
+
+  for_each = local.crd_charts
+
+  chart_name    = each.key
+  chart_version = each.value.version
+  chart_values  = [yamlencode(each.value.values)]
+
+  apply_only = false
 }
 ```
 
