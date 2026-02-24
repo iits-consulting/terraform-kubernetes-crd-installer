@@ -6,7 +6,9 @@ A module designed to automatically extract the crds from Helm charts and install
 > Module execution and subsequent state generation can take a longer than usual time due to the large size of the state the module generates.  
 > It is recommended to use it as standalone in its own script to separate its state from other terraform scripts.
 
-> **WARNING:** When migrating from a version before 8.0.0, make sure `apply_only = true` is set  to avoid destruction of CRDs installed by older module versions!  
+> **WARNING: BREAKING CHANGES IN 8.0.0**  
+> Module is restructured so that each instance of the module now controls only one chart's CRDs. Make sure to adjust your module configuration! See usage example below for details.  
+> When migrating from a version before 8.0.0, make sure `apply_only = true` is set  to avoid destruction of CRDs installed by older module versions!
 
 Usage example (overriding versions and disabling built-in default charts):
 ```hcl
