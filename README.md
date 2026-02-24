@@ -8,7 +8,7 @@ A module designed to automatically extract the crds from Helm charts and install
 
 > **WARNING: BREAKING CHANGES IN 8.0.0**  
 > Module is restructured so that each instance of the module now controls only one chart's CRDs. Make sure to adjust your module configuration! See usage example below for details.  
-> When migrating from a version before 8.0.0, make sure `apply_only = true` is set  to avoid destruction of CRDs installed by older module versions!
+> When migrating from a version before 8.0.0, make sure `apply_only = true` is set  to avoid destruction of CRDs installed by older module versions!  
 
 Usage example (overriding versions and disabling built-in default charts):
 ```hcl
