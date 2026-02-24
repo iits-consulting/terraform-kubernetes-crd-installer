@@ -33,91 +33,53 @@ variable "force_new" {
   description = "Forces delete & create of resources if the CRD manifest changes."
 }
 
-variable "charts" {
-  type = map(object({
-    repository = string
-    version    = string
-    enabled    = optional(bool, true)
-    values     = optional(list(string), [""])
-    set = optional(list(object({
-      name  = string
-      value = optional(string)
-      type  = optional(string)
-    })), [])
-    set_list = optional(list(object({
-      name  = string
-      value = list(string)
-    })), [])
-    set_sensitive = optional(list(object({
-      name  = string
-      value = string
-      type  = optional(string)
-    })), [])
+variable "chart_repository" {
+  description = "Helm chart repository to template the chart from."
+  type        = string
+  default     = "https://charts.iits.tech"
+}
+
+variable "chart_name" {
+  description = "Helm chart name to create templates from."
+  type        = string
+}
+
+variable "chart_version" {
+  description = "Helm chart version to template the chart from."
+  type        = string
+}
+
+variable "chart_values" {
+  type        = list(string)
+  default     = []
+  description = "Override the values of the chart using value files."
+}
+
+variable "chart_set_parameter" {
+  type = list(object({
+    name  = string
+    value = optional(string)
+    type  = optional(string)
   }))
-  default     = {}
-  description = "A map of additional charts and their parameters to extract CRDs from. (Please ensure that the CRD flags are set to true for the charts)"
+  default     = []
+  description = "Override the values of the chart using set."
 }
 
-variable "default_chart_overrides" {
-  type        = map(any)
-  default     = {}
-  description = "Overrides for the default charts. Supported parameters are: repository, version, enabled, values, set and set_sensitive. (see https://registry.terraform.io/providers/hashicorp/helm/latest/docs/data-sources/template)"
+variable "chart_set_list_parameter" {
+  type = list(object({
+    name  = string
+    value = list(string)
+  }))
+  default     = []
+  description = "Override the values of the chart using set_list."
 }
 
-locals {
-  default_charts = {
-    cert-manager = {
-      repository = "https://charts.iits.tech"
-      version    = "1.16.1"
-      enabled    = true
-      values     = [""]
-      set = [{
-        name  = "cert-manager.installCRDs"
-        value = true
-        type  = "auto"
-      }]
-      set_list      = []
-      set_sensitive = []
-    }
-    traefik = {
-      repository = "https://charts.iits.tech"
-      version    = "34.2.0"
-      enabled    = true
-      values     = [""]
-      set = [{
-        name  = "traefik.metrics.prometheus.disableAPICheck"
-        value = true
-        type  = "auto"
-      }]
-      set_list      = []
-      set_sensitive = []
-    }
-    kyverno = {
-      repository = "https://charts.iits.tech"
-      version    = "2.2.2"
-      enabled    = true
-      values     = [""]
-      set = [{
-        name  = "kyverno.crds.install"
-        value = true
-        type  = "auto"
-      }]
-      set_list      = []
-      set_sensitive = []
-    }
-    prometheus-stack = {
-      repository = "https://charts.iits.tech"
-      version    = "62.6.0"
-      enabled    = true
-      values     = [""]
-      set = [{
-        name  = "prometheusStack.crds.enabled"
-        value = true
-        type  = "auto"
-      }]
-      set_list      = []
-      set_sensitive = []
-    }
-  }
-  charts_merged = merge({ for chart, params in local.default_charts : chart => merge(params, lookup(var.default_chart_overrides, chart, null)) }, var.charts)
+variable "chart_set_sensitive_parameter" {
+  type = list(object({
+    name  = string
+    value = string
+    type  = optional(string)
+  }))
+  default     = []
+  description = "Override the values of the chart using set_sensitive."
 }
