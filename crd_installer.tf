@@ -27,4 +27,7 @@ resource "kubectl_manifest" "crds" {
   force_new         = var.force_new
   force_conflicts   = var.force_conflicts
   sensitive_fields  = var.hide_fields
+  lifecycle {
+    ignore_changes = [yaml_incluster]
+  }
 }
